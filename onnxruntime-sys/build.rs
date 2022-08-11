@@ -79,6 +79,9 @@ fn generate_bindings(_include_dir: &Path) {
 fn generate_bindings(include_dir: &Path) {
     let clang_args = &[
         format!("-I{}", include_dir.display()),
+        #[cfg(not(target_os = "macos"))]
+        #[cfg(feature = "cuda")]
+        "-DUSE_CUDA".to_string(),
         format!(
             "-I{}",
             include_dir

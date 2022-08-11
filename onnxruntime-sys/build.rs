@@ -13,7 +13,7 @@ use std::{
 /// WARNING: If version is changed, bindings for all platforms will have to be re-generated.
 ///          To do so, run this:
 ///              cargo build --package onnxruntime-sys --features generate-bindings
-const ORT_VERSION: &str = "1.8.1";
+const ORT_VERSION: &str = "1.12.1";
 
 /// Base Url from which to download pre-built releases/
 const ORT_RELEASE_BASE_URL: &str = "https://github.com/microsoft/onnxruntime/releases/download";
@@ -133,7 +133,17 @@ fn download<P>(source_url: &str, target_file: P)
 where
     P: AsRef<Path>,
 {
-    let resp = ureq::get(source_url)
+    let agent = match std::env::var("https_proxy").ok() {
+        None => ureq::Agent::new(),
+        Some(proxy) => ureq::AgentBuilder::new()
+            .proxy(ureq::Proxy::new(proxy).unwrap())
+            .build(),
+    };
+
+    // let agent = ureq::AgentBuilder::proxy(self, proxy)
+
+    let resp = agent
+        .get(source_url)
         .timeout(std::time::Duration::from_secs(300))
         .call()
         .unwrap_or_else(|err| panic!("ERROR: Failed to download {}: {:?}", source_url, err));
@@ -320,12 +330,16 @@ impl OnnxPrebuiltArchive for Triplet {
             | (Os::Windows, Architecture::X86_64, Accelerator::None)
             | (Os::Windows, Architecture::Arm, Accelerator::None)
             | (Os::Windows, Architecture::Arm64, Accelerator::None)
-            | (Os::Linux, Architecture::X86_64, Accelerator::None)
-            | (Os::MacOs, Architecture::X86_64, Accelerator::None) => Cow::from(format!(
+            | (Os::Linux, Architecture::X86_64, Accelerator::None) => Cow::from(format!(
+                // | (Os::MacOs, Architecture::X86_64, Accelerator::None) => Cow::from(format!(
                 "{}-{}",
                 self.os.as_onnx_str(),
                 self.arch.as_onnx_str()
             )),
+            //onnxruntime-osx-x86_64-1.8.1.tgz
+            (Os::MacOs, Architecture::X86_64, Accelerator::None) => {
+                Cow::from(format!("{}-{}", self.os.as_onnx_str(), "x86_64"))
+            }
             // onnxruntime-win-gpu-x64-1.8.1.zip
             // Note how this one is inverted from the linux one next
             (Os::Windows, Architecture::X86_64, Accelerator::Gpu) => Cow::from(format!(

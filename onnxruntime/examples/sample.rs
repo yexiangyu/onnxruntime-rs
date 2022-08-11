@@ -34,6 +34,7 @@ fn run() -> Result<(), Error> {
     let mut session = environment
         .new_session_builder()?
         .with_optimization_level(GraphOptimizationLevel::Basic)?
+        .use_cuda(0)?
         .with_number_threads(1)?
         // NOTE: The example uses SqueezeNet 1.0 (ONNX version: 1.3, Opset version: 8),
         //       _not_ SqueezeNet 1.1 as downloaded by '.with_model_downloaded(ImageClassification::SqueezeNet)'
@@ -61,11 +62,13 @@ fn run() -> Result<(), Error> {
         .unwrap();
     let input_tensor_values = vec![array];
 
-    let outputs: Vec<OrtOwnedTensor<f32, _>> = session.run(input_tensor_values)?;
+    for _ in 0..10000 {
+        let outputs: Vec<OrtOwnedTensor<f32, _>> = session.run(input_tensor_values.clone())?;
 
-    assert_eq!(outputs[0].shape(), output0_shape.as_slice());
-    for i in 0..5 {
-        println!("Score for class [{}] =  {}", i, outputs[0][[0, i, 0, 0]]);
+        assert_eq!(outputs[0].shape(), output0_shape.as_slice());
+        for i in 0..5 {
+            println!("Score for class [{}] =  {}", i, outputs[0][[0, i, 0, 0]]);
+        }
     }
 
     Ok(())

@@ -64,7 +64,6 @@ fn main() {
 fn generate_bindings(_include_dir: &Path) {
     println!("Bindings not generated automatically, using committed files instead.");
     println!("Enable with the 'generate-bindings' cargo feature.");
-
     // NOTE: If bindings could not be be generated for Apple Sillicon M1, please uncomment the following
     // let os = env::var("CARGO_CFG_TARGET_OS").expect("Unable to get TARGET_OS");
     // let arch = env::var("CARGO_CFG_TARGET_ARCH").expect("Unable to get TARGET_ARCH");

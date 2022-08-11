@@ -102,6 +102,14 @@ impl<'a> SessionBuilder<'a> {
         })
     }
 
+    /// use cuda by device id
+    pub fn use_cuda(self, device_id: i32) -> Result<SessionBuilder<'a>> {
+        unsafe {
+            sys::OrtSessionOptionsAppendExecutionProvider_CUDA(self.session_options_ptr, device_id);
+        }
+        Ok(self)
+    }
+
     /// Configure the session to use a number of threads
     pub fn with_number_threads(self, num_threads: i16) -> Result<SessionBuilder<'a>> {
         // FIXME: Pre-built binaries use OpenMP, set env variable instead

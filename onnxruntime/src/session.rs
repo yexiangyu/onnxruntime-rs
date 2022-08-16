@@ -104,6 +104,7 @@ impl<'a> SessionBuilder<'a> {
 
     /// use cuda by device id
     pub fn use_cuda(self, device_id: i32) -> Result<SessionBuilder<'a>> {
+        #[cfg(feature = "cuda")]
         unsafe {
             let status = sys::OrtSessionOptionsAppendExecutionProvider_CUDA(
                 self.session_options_ptr,

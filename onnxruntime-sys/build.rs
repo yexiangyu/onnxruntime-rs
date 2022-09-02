@@ -338,6 +338,10 @@ impl OnnxPrebuiltArchive for Triplet {
                 self.os.as_onnx_str(),
                 self.arch.as_onnx_str()
             )),
+            //onnxruntime-osx-arm64-1.12.1.tgz
+            (Os::MacOs, Architecture::Arm64, Accelerator::None) => {
+                Cow::from(format!("{}-{}", self.os.as_onnx_str(), "arm64"))
+            }
             //onnxruntime-osx-x86_64-1.8.1.tgz
             (Os::MacOs, Architecture::X86_64, Accelerator::None) => {
                 Cow::from(format!("{}-{}", self.os.as_onnx_str(), "x86_64"))

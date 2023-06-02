@@ -183,7 +183,7 @@ fn g_ort() -> sys::OrtApi {
 }
 
 fn char_p_to_string(raw: *const i8) -> Result<String> {
-    let c_string = unsafe { std::ffi::CStr::from_ptr(raw as *mut i8).to_owned() };
+    let c_string = unsafe { std::ffi::CStr::from_ptr(raw as *mut u8).to_owned() };
 
     match c_string.into_string() {
         Ok(string) => Ok(string),
@@ -249,16 +249,16 @@ mod onnxruntime {
             };
 
             assert_ne!(category, std::ptr::null());
-            let category = unsafe { CStr::from_ptr(category) };
+            let category = unsafe { CStr::from_ptr(category as *const u8) };
             assert_ne!(code_location, std::ptr::null());
-            let code_location = unsafe { CStr::from_ptr(code_location) }
+            let code_location = unsafe { CStr::from_ptr(code_location as *const u8) }
                 .to_str()
                 .unwrap_or("unknown");
             assert_ne!(message, std::ptr::null());
-            let message = unsafe { CStr::from_ptr(message) };
+            let message = unsafe { CStr::from_ptr(message as *const u8) };
 
             assert_ne!(logid, std::ptr::null());
-            let logid = unsafe { CStr::from_ptr(logid) };
+            let logid = unsafe { CStr::from_ptr(logid as *const u8) };
 
             // Parse the code location
             let code_location: CodeLocation = code_location.into();

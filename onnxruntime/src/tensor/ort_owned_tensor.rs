@@ -108,7 +108,12 @@ where
             g_ort().GetTensorMutableData.unwrap()(self.tensor_ptr, output_array_ptr_ptr_void)
         };
         status_to_result(status).map_err(OrtError::IsTensor)?;
-        assert_ne!(output_array_ptr, std::ptr::null_mut());
+
+        if output_array_ptr == std::ptr::null_mut() {
+            return Err(OrtError::PointerShouldNotBeNull(
+                "extracting tensor result with null pointer".to_string(),
+            ));
+        }
 
         let array_view = unsafe { ArrayView::from_shape_ptr(self.shape, output_array_ptr) };
 

@@ -171,7 +171,7 @@ pub const _STRING_H: u32 = 1;
 pub const _BITS_TYPES_LOCALE_T_H: u32 = 1;
 pub const _BITS_TYPES___LOCALE_T_H: u32 = 1;
 pub const _STRINGS_H: u32 = 1;
-pub const ORT_API_VERSION: u32 = 14;
+pub const ORT_API_VERSION: u32 = 15;
 pub type wchar_t = ::std::os::raw::c_int;
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2761,22 +2761,27 @@ pub struct OrtTensorTypeAndShapeInfo {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct OrtSessionOptions {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct OrtCustomOpDomain {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct OrtMapTypeInfo {
     _unused: [u8; 0],
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OrtSequenceTypeInfo {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct OrtOptionalTypeInfo {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct OrtSessionOptions {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct OrtCustomOpDomain {
     _unused: [u8; 0],
 }
 #[repr(C)]
@@ -2821,12 +2826,22 @@ pub struct OrtCANNProviderOptions {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct OrtDnnlProviderOptions {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct OrtOp {
     _unused: [u8; 0],
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct OrtOpAttr {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct OrtLogger {
     _unused: [u8; 0],
 }
 pub type OrtStatusPtr = *mut OrtStatus;
@@ -2919,8 +2934,8 @@ pub type OrtLoggingFunction = ::std::option::Option<
 #[repr(u32)]
 #[doc = " \\brief Graph optimization level"]
 #[doc = ""]
-#[doc = " Refer to https://www.onnxruntime.ai/docs/resources/graph-optimizations.html"]
-#[doc = " for an in-depth understanding of Graph Optimizations"]
+#[doc = " Refer to https://www.onnxruntime.ai/docs/performance/graph-optimizations.html#graph-optimization-levels"]
+#[doc = " for an in-depth understanding of the Graph Optimization Levels."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum GraphOptimizationLevel {
     ORT_DISABLE_ALL = 0,
@@ -3032,10 +3047,14 @@ pub struct OrtCUDAProviderOptions {
     pub user_compute_stream: *mut ::std::os::raw::c_void,
     #[doc = " \\brief CUDA memory arena configuration parameters"]
     pub default_memory_arena_cfg: *mut OrtArenaCfg,
-    #[doc = " \\brief Enable TunableOp."]
-    #[doc = "   Set it to 1 to enable TunableOp. Otherwise, it is disabled by default."]
-    #[doc = "   This option can be superseded by environment variable ORT_CUDA_TUNABLE_OP_ENABLED."]
-    pub tunable_op_enabled: ::std::os::raw::c_int,
+    #[doc = " \\brief Enable TunableOp for using."]
+    #[doc = "   Set it to 1/0 to enable/disable TunableOp. Otherwise, it is disabled by default."]
+    #[doc = "   This option can be overriden by environment variable ORT_CUDA_TUNABLE_OP_ENABLE."]
+    pub tunable_op_enable: ::std::os::raw::c_int,
+    #[doc = " \\brief Enable TunableOp for tuning."]
+    #[doc = "   Set it to 1/0 to enable/disable TunableOp tuning. Otherwise, it is disabled by default."]
+    #[doc = "   This option can be overriden by environment variable ORT_CUDA_TUNABLE_OP_TUNING_ENABLE."]
+    pub tunable_op_tuning_enable: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_OrtCUDAProviderOptions() {
@@ -3153,7 +3172,7 @@ fn bindgen_test_layout_OrtCUDAProviderOptions() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<OrtCUDAProviderOptions>())).tunable_op_enabled as *const _
+            &(*(::std::ptr::null::<OrtCUDAProviderOptions>())).tunable_op_enable as *const _
                 as usize
         },
         48usize,
@@ -3161,7 +3180,20 @@ fn bindgen_test_layout_OrtCUDAProviderOptions() {
             "Offset of field: ",
             stringify!(OrtCUDAProviderOptions),
             "::",
-            stringify!(tunable_op_enabled)
+            stringify!(tunable_op_enable)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtCUDAProviderOptions>())).tunable_op_tuning_enable as *const _
+                as usize
+        },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtCUDAProviderOptions),
+            "::",
+            stringify!(tunable_op_tuning_enable)
         )
     );
 }
@@ -3202,10 +3234,14 @@ pub struct OrtROCMProviderOptions {
     pub user_compute_stream: *mut ::std::os::raw::c_void,
     #[doc = " \\brief ROCM memory arena configuration parameters"]
     pub default_memory_arena_cfg: *mut OrtArenaCfg,
-    #[doc = " \\brief Enable TunableOp."]
-    #[doc = "   Set it to 1 to enable TunableOp. Otherwise, it is disabled by default."]
-    #[doc = "   This option can be superseded by environment variable ORT_ROCM_TUNABLE_OP_ENABLED."]
-    pub tunable_op_enabled: ::std::os::raw::c_int,
+    #[doc = " \\brief Enable TunableOp for using."]
+    #[doc = "   Set it to 1/0 to enable/disable TunableOp. Otherwise, it is disabled by default."]
+    #[doc = "   This option can be overriden by environment variable ORT_ROCM_TUNABLE_OP_ENABLE."]
+    pub tunable_op_enable: ::std::os::raw::c_int,
+    #[doc = " \\brief Enable TunableOp for tuning."]
+    #[doc = "   Set it to 1/0 to enable/disable TunableOp tuning. Otherwise, it is disabled by default."]
+    #[doc = "   This option can be overriden by environment variable ORT_ROCM_TUNABLE_OP_TUNING_ENABLE."]
+    pub tunable_op_tuning_enable: ::std::os::raw::c_int,
 }
 #[test]
 fn bindgen_test_layout_OrtROCMProviderOptions() {
@@ -3323,7 +3359,7 @@ fn bindgen_test_layout_OrtROCMProviderOptions() {
     );
     assert_eq!(
         unsafe {
-            &(*(::std::ptr::null::<OrtROCMProviderOptions>())).tunable_op_enabled as *const _
+            &(*(::std::ptr::null::<OrtROCMProviderOptions>())).tunable_op_enable as *const _
                 as usize
         },
         48usize,
@@ -3331,7 +3367,20 @@ fn bindgen_test_layout_OrtROCMProviderOptions() {
             "Offset of field: ",
             stringify!(OrtROCMProviderOptions),
             "::",
-            stringify!(tunable_op_enabled)
+            stringify!(tunable_op_enable)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtROCMProviderOptions>())).tunable_op_tuning_enable as *const _
+                as usize
+        },
+        52usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtROCMProviderOptions),
+            "::",
+            stringify!(tunable_op_tuning_enable)
         )
     );
 }
@@ -3675,7 +3724,7 @@ fn bindgen_test_layout_OrtMIGraphXProviderOptions() {
 pub struct OrtOpenVINOProviderOptions {
     #[doc = " \\brief Device type string"]
     #[doc = ""]
-    #[doc = " Valid settings are one of: \"CPU_FP32\", \"CPU_FP16\", \"GPU_FP32\", \"GPU_FP16\", \"MYRIAD_FP16\", \"VAD-M_FP16\" or \"VAD-F_FP32\""]
+    #[doc = " Valid settings are one of: \"CPU_FP32\", \"CPU_FP16\", \"GPU_FP32\", \"GPU_FP16\""]
     pub device_type: *const ::std::os::raw::c_char,
     #[doc = "< 0 = disabled, nonzero = enabled"]
     pub enable_vpu_fast_compile: ::std::os::raw::c_uchar,
@@ -3818,8 +3867,13 @@ pub struct OrtApiBase {
     #[doc = " \\param[in] version Must be ::ORT_API_VERSION"]
     #[doc = " \\return The ::OrtApi for the version requested, nullptr will be returned if this version is unsupported, for example when using a runtime"]
     #[doc = "   older than the version created with this header file."]
+    #[doc = ""]
+    #[doc = " One can call GetVersionString() to get the version of the Onnxruntime library for logging"]
+    #[doc = " and error reporting purposes."]
     pub GetApi: ::std::option::Option<unsafe extern "C" fn(version: u32) -> *const OrtApi>,
-    #[doc = "< Returns a null terminated string of the version of the Onnxruntime library (eg: \"1.8.1\")"]
+    #[doc = " \\brief Returns a null terminated string of the version of the Onnxruntime library (eg: \"1.8.1\")"]
+    #[doc = ""]
+    #[doc = "  \\return UTF-8 encoded version string. Do not deallocate the returned buffer."]
     pub GetVersionString:
         ::std::option::Option<unsafe extern "C" fn() -> *const ::std::os::raw::c_char>,
 }
@@ -5193,6 +5247,22 @@ pub struct OrtApi {
         ) -> OrtStatusPtr,
     >,
     pub ReleaseKernelInfo: ::std::option::Option<unsafe extern "C" fn(input: *mut OrtKernelInfo)>,
+    #[doc = " \\name Ort Training"]
+    #[doc = " @{"]
+    #[doc = "** \\brief Gets the Training C Api struct"]
+    #[doc = "*"]
+    #[doc = "* Call this function to access the ::OrtTrainingApi structure that holds pointers to functions that enable"]
+    #[doc = "* training with onnxruntime."]
+    #[doc = "* \\note A NULL pointer will be returned and no error message will be printed if the training api"]
+    #[doc = "* is not supported with this build. A NULL pointer will be returned and an error message will be"]
+    #[doc = "* printed if the provided version is unsupported, for example when using a runtime older than the"]
+    #[doc = "* version created with this header file."]
+    #[doc = "*"]
+    #[doc = "* \\param[in] version Must be ::ORT_API_VERSION"]
+    #[doc = "* \\return The ::OrtTrainingApi struct for the version requested."]
+    #[doc = "*"]
+    #[doc = "* \\since Version 1.13"]
+    #[doc = "*/"]
     pub GetTrainingApi:
         ::std::option::Option<unsafe extern "C" fn(version: u32) -> *const OrtTrainingApi>,
     pub SessionOptionsAppendExecutionProvider_CANN: ::std::option::Option<
@@ -5312,12 +5382,115 @@ pub struct OrtApi {
             size: *mut usize,
         ) -> OrtStatusPtr,
     >,
+    pub SessionOptionsAppendExecutionProvider_Dnnl: ::std::option::Option<
+        unsafe extern "C" fn(
+            options: *mut OrtSessionOptions,
+            dnnl_options: *const OrtDnnlProviderOptions,
+        ) -> OrtStatusPtr,
+    >,
+    pub CreateDnnlProviderOptions: ::std::option::Option<
+        unsafe extern "C" fn(out: *mut *mut OrtDnnlProviderOptions) -> OrtStatusPtr,
+    >,
+    pub UpdateDnnlProviderOptions: ::std::option::Option<
+        unsafe extern "C" fn(
+            dnnl_options: *mut OrtDnnlProviderOptions,
+            provider_options_keys: *const *const ::std::os::raw::c_char,
+            provider_options_values: *const *const ::std::os::raw::c_char,
+            num_keys: usize,
+        ) -> OrtStatusPtr,
+    >,
+    pub GetDnnlProviderOptionsAsString: ::std::option::Option<
+        unsafe extern "C" fn(
+            dnnl_options: *const OrtDnnlProviderOptions,
+            allocator: *mut OrtAllocator,
+            ptr: *mut *mut ::std::os::raw::c_char,
+        ) -> OrtStatusPtr,
+    >,
+    #[doc = " \\brief Release an ::OrtDnnlProviderOptions"]
+    #[doc = ""]
+    #[doc = " \\since Version 1.15."]
+    pub ReleaseDnnlProviderOptions:
+        ::std::option::Option<unsafe extern "C" fn(input: *mut OrtDnnlProviderOptions)>,
+    pub KernelInfo_GetNodeName: ::std::option::Option<
+        unsafe extern "C" fn(
+            info: *const OrtKernelInfo,
+            out: *mut ::std::os::raw::c_char,
+            size: *mut usize,
+        ) -> OrtStatusPtr,
+    >,
+    pub KernelInfo_GetLogger: ::std::option::Option<
+        unsafe extern "C" fn(
+            info: *const OrtKernelInfo,
+            logger: *mut *const OrtLogger,
+        ) -> OrtStatusPtr,
+    >,
+    pub KernelContext_GetLogger: ::std::option::Option<
+        unsafe extern "C" fn(
+            context: *const OrtKernelContext,
+            logger: *mut *const OrtLogger,
+        ) -> OrtStatusPtr,
+    >,
+    pub Logger_LogMessage: ::std::option::Option<
+        unsafe extern "C" fn(
+            logger: *const OrtLogger,
+            log_severity_level: OrtLoggingLevel,
+            message: *const ::std::os::raw::c_char,
+            file_path: *const ::std::os::raw::c_char,
+            line_number: ::std::os::raw::c_int,
+            func_name: *const ::std::os::raw::c_char,
+        ) -> OrtStatusPtr,
+    >,
+    pub Logger_GetLoggingSeverityLevel: ::std::option::Option<
+        unsafe extern "C" fn(logger: *const OrtLogger, out: *mut OrtLoggingLevel) -> OrtStatusPtr,
+    >,
+    pub KernelInfoGetConstantInput_tensor: ::std::option::Option<
+        unsafe extern "C" fn(
+            info: *const OrtKernelInfo,
+            index: usize,
+            is_constant: *mut ::std::os::raw::c_int,
+            out: *mut *const OrtValue,
+        ) -> OrtStatusPtr,
+    >,
+    pub CastTypeInfoToOptionalTypeInfo: ::std::option::Option<
+        unsafe extern "C" fn(
+            type_info: *const OrtTypeInfo,
+            out: *mut *const OrtOptionalTypeInfo,
+        ) -> OrtStatusPtr,
+    >,
+    pub GetOptionalContainedTypeInfo: ::std::option::Option<
+        unsafe extern "C" fn(
+            optional_type_info: *const OrtOptionalTypeInfo,
+            out: *mut *mut OrtTypeInfo,
+        ) -> OrtStatusPtr,
+    >,
+    pub GetResizedStringTensorElementBuffer: ::std::option::Option<
+        unsafe extern "C" fn(
+            value: *mut OrtValue,
+            index: usize,
+            length_in_bytes: usize,
+            buffer: *mut *mut ::std::os::raw::c_char,
+        ) -> OrtStatusPtr,
+    >,
+    pub KernelContext_GetAllocator: ::std::option::Option<
+        unsafe extern "C" fn(
+            context: *const OrtKernelContext,
+            mem_info: *const OrtMemoryInfo,
+            out: *mut *mut OrtAllocator,
+        ) -> OrtStatusPtr,
+    >,
+    #[doc = " \\brief Returns a null terminated string of the build info including git info and cxx flags"]
+    #[doc = ""]
+    #[doc = " \\return UTF-8 encoded version string. Do not deallocate the returned buffer."]
+    #[doc = ""]
+    #[doc = " \\since Version 1.15."]
+    pub GetBuildInfoString:
+        ::std::option::Option<unsafe extern "C" fn() -> *const ::std::os::raw::c_char>,
 }
 #[test]
 fn bindgen_test_layout_OrtApi() {
     assert_eq!(
         ::std::mem::size_of::<OrtApi>(),
-        1912usize,
+        2040usize,
         concat!("Size of: ", stringify!(OrtApi))
     );
     assert_eq!(
@@ -7920,6 +8093,191 @@ fn bindgen_test_layout_OrtApi() {
             stringify!(GetSessionConfigEntry)
         )
     );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).SessionOptionsAppendExecutionProvider_Dnnl
+                as *const _ as usize
+        },
+        1912usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(SessionOptionsAppendExecutionProvider_Dnnl)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).CreateDnnlProviderOptions as *const _ as usize
+        },
+        1920usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(CreateDnnlProviderOptions)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).UpdateDnnlProviderOptions as *const _ as usize
+        },
+        1928usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(UpdateDnnlProviderOptions)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).GetDnnlProviderOptionsAsString as *const _ as usize
+        },
+        1936usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(GetDnnlProviderOptionsAsString)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).ReleaseDnnlProviderOptions as *const _ as usize
+        },
+        1944usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(ReleaseDnnlProviderOptions)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<OrtApi>())).KernelInfo_GetNodeName as *const _ as usize },
+        1952usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(KernelInfo_GetNodeName)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<OrtApi>())).KernelInfo_GetLogger as *const _ as usize },
+        1960usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(KernelInfo_GetLogger)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<OrtApi>())).KernelContext_GetLogger as *const _ as usize },
+        1968usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(KernelContext_GetLogger)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<OrtApi>())).Logger_LogMessage as *const _ as usize },
+        1976usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(Logger_LogMessage)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).Logger_GetLoggingSeverityLevel as *const _ as usize
+        },
+        1984usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(Logger_GetLoggingSeverityLevel)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).KernelInfoGetConstantInput_tensor as *const _
+                as usize
+        },
+        1992usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(KernelInfoGetConstantInput_tensor)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).CastTypeInfoToOptionalTypeInfo as *const _ as usize
+        },
+        2000usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(CastTypeInfoToOptionalTypeInfo)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).GetOptionalContainedTypeInfo as *const _ as usize
+        },
+        2008usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(GetOptionalContainedTypeInfo)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).GetResizedStringTensorElementBuffer as *const _
+                as usize
+        },
+        2016usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(GetResizedStringTensorElementBuffer)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<OrtApi>())).KernelContext_GetAllocator as *const _ as usize
+        },
+        2024usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(KernelContext_GetAllocator)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<OrtApi>())).GetBuildInfoString as *const _ as usize },
+        2032usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(OrtApi),
+            "::",
+            stringify!(GetBuildInfoString)
+        )
+    );
 }
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -8199,6 +8557,12 @@ extern "C" {
     pub fn OrtSessionOptionsAppendExecutionProvider_MIGraphX(
         options: *mut OrtSessionOptions,
         device_id: ::std::os::raw::c_int,
+    ) -> OrtStatusPtr;
+}
+extern "C" {
+    pub fn OrtSessionOptionsAppendExecutionProvider_Dnnl(
+        options: *mut OrtSessionOptions,
+        use_arena: ::std::os::raw::c_int,
     ) -> OrtStatusPtr;
 }
 #[repr(C)]

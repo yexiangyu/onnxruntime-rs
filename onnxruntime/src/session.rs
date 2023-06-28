@@ -659,7 +659,7 @@ mod dangerous {
             *const sys::OrtSession,
             usize,
             *mut sys::OrtAllocator,
-            *mut *mut u8,
+            *mut *mut i8,
         ) -> *mut sys::OrtStatus },
         session_ptr: *mut sys::OrtSession,
         allocator_ptr: *mut sys::OrtAllocator,

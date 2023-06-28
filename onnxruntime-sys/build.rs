@@ -429,6 +429,7 @@ fn prepare_libort_dir_prebuilt() -> PathBuf {
 }
 
 fn prepare_libort_dir() -> PathBuf {
+    std::env::set_var("ORT_ENV_STRATEGY", "system");
     let strategy = env::var(ORT_ENV_STRATEGY);
     println!(
         "strategy: {:?}",

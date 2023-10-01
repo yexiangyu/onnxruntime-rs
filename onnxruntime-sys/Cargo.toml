@@ -15,9 +15,10 @@ categories = ["science"]
 keywords = ["neuralnetworks", "onnx", "bindings"]
 
 [dependencies]
+bindgen = "0.68.1"
 
 [build-dependencies]
-bindgen = { version = "0.59", optional = true }
+bindgen = { version = "0.68.1", optional = true }
 ureq = "2.1"
 
 # Used on Windows
